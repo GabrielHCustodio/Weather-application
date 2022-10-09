@@ -3,8 +3,12 @@
     <div class="form">
       <h3>Confira o clima na sua cidade:</h3>
       <div class="form-input-container">
-        <input type="text" placeholder="Digite o nome da cidade" />
-        <button>
+        <input
+          type="text"
+          placeholder="Digite o nome da cidade"
+          v-model="nameCity"
+        />
+        <button @click="search">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
       </div>
@@ -13,25 +17,35 @@
     <div class="weather-data">
       <h2>
         <i class="fa-solid fa-location-dot"></i>
-        <span>Poços de Caldas</span>
-        <img id="country" src="https://countryflagsapi.com/png/brazil" alt="Bandeira do país" />
+        <span>{{ weather.countryName }}</span>
+        <img
+          id="country"
+          :src="`https://countryflagsapi.com/png/${weather.countryFlag}`"
+          alt="Bandeira do país"
+        />
       </h2>
-      
-      <p id="temperature"><span>38</span>&deg;C</p>
+
+      <p id="temperature">
+        <span>{{ weather.temperature }}</span
+        >&deg;C
+      </p>
 
       <div class="description-container">
-        <p id="description">Ensolarado</p>
-        <img src="https://openweathermap.org/img/wn/01d.png" alt="Condição do tempo" />
+        <p id="description">{{ weather.description }}</p>
+        <img
+          :src="`https://openweathermap.org/img/wn/${weather.icon}.png`"
+          alt="Condição do tempo"
+        />
       </div>
 
       <div class="container-details">
-        <p id="umidity">
+        <p id="humidity">
           <i class="fa-solid fa-droplet"></i>
-          <span>48%</span>
+          <span>{{ weather.humidity }} %</span>
         </p>
         <p>
           <i class="fa-solid fa-wind"></i>
-          <span>2.8Km/h</span>
+          <span>{{ weather.wind }} Km/h</span>
         </p>
       </div>
     </div>
@@ -39,8 +53,56 @@
 </template>
 
 <script>
+import config from "@/config/config";
+
 export default {
   name: "WeatherBox",
+  data() {
+    return {
+      nameCity: "",
+      weather: {
+        countryName: "",
+        countryFlag: "",
+        temperature: "",
+        description: "",
+        icon: "",
+        humidity: "",
+        wind: "",
+      },
+    };
+  },
+  created() {
+    fetch(
+        `${config.apiWeatherUrl}?q=Brasilia&units=metric&appid=${config.apiWeatherKey}&lang=pt_br`
+      )
+        .then((response) => response.json())
+        .then((response) => {
+          this.weather.countryName = response.name;
+          this.weather.countryFlag = response.sys.country;
+          this.weather.temperature = parseInt(response.main.temp);
+          this.weather.description = response.weather[0].description;
+          this.weather.icon = response.weather[0].icon;
+          this.weather.humidity = response.main.humidity;
+          this.weather.wind = response.wind.speed;
+        });
+  },
+  methods: {
+    search() {
+      fetch(
+        `${config.apiWeatherUrl}?q=${this.nameCity}&units=metric&appid=${config.apiWeatherKey}&lang=pt_br`
+      )
+        .then((response) => response.json())
+        .then((response) => {
+          this.weather.countryName = response.name;
+          this.weather.countryFlag = response.sys.country;
+          this.weather.temperature = parseInt(response.main.temp);
+          this.weather.description = response.weather[0].description;
+          this.weather.icon = response.weather[0].icon;
+          this.weather.humidity = response.main.humidity;
+          this.weather.wind = response.wind.speed;
+        });
+    },
+  },
 };
 </script>
 
@@ -62,7 +124,7 @@ export default {
 }
 
 .form input {
-  padding: .8rem;
+  padding: 0.8rem;
   border: none;
   border-radius: 4px;
   flex: 1;
@@ -70,7 +132,7 @@ export default {
 }
 
 .form button {
-  padding: .8rem;
+  padding: 0.8rem;
   min-width: 50px;
   background: #8dd0f5;
   color: #fdfdfd;
@@ -128,7 +190,7 @@ export default {
   align-items: center;
 }
 
-.container-details #umidity {
+.container-details #humidity {
   border-right: 1px solid #fff;
   margin: 0.6rem;
   padding: 0.6rem;
