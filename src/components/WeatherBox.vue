@@ -19,7 +19,7 @@
       v-if="showData && loading === false && messageError === false"
       :weather="this.weather"
     />
-    <loader v-if="loading && messageError === false" />
+    <loader-request v-if="loading && messageError === false" />
     <messageError v-if="messageError" />
   </div>
 </template>
@@ -28,7 +28,7 @@
 import config from "@/config/config";
 
 import DisplayData from "@/components/DisplayData.vue";
-import Loader from "@/components/Loader.vue";
+import LoaderRequest from "@/components/Loader.vue";
 import MessageError from "@/components/MessageError.vue";
 
 export default {
@@ -53,7 +53,7 @@ export default {
   },
   components: {
     DisplayData,
-    Loader,
+    LoaderRequest,
     MessageError,
   },
   methods: {
@@ -75,6 +75,7 @@ export default {
           this.weather.wind = response.wind.speed;
         })
         .catch((error) => {
+          console.log(error)
           return this.messageError = true;
         });
 
