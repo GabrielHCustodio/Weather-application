@@ -1,17 +1,28 @@
 <template>
   <div class="center">
-    <weather-box />
+    <weather-box @bg-image="bgImage" />
   </div>
 </template>
 
 <script>
-import WeatherBox from '@/components/WeatherBox.vue'
+import config from "@/config/config";
+import WeatherBox from "@/components/WeatherBox.vue";
 
 export default {
   name: "App",
+  data() {
+    return {
+      urlImage: ''
+    }
+  },
   components: {
-    WeatherBox
-  }
+    WeatherBox,
+  },
+  methods: {
+    bgImage(city) {
+      document.body.style.backgroundImage = `url("${config.apiUnsplash + city}")`;
+    },
+  },
 };
 </script>
 
@@ -25,7 +36,7 @@ export default {
   font-family: "Ubuntu", sans-serif;
 }
 
-.center {
+body {
   display: flex;
   align-items: center;
   justify-content: center;

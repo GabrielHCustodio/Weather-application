@@ -7,14 +7,15 @@
           type="text"
           placeholder="Digite o nome da cidade"
           v-model="nameCity"
+          @keyup.enter="search"
         />
-        <button @click="search">
+        <button @click.e.prevent="search" @click="$emit('bgImage', this.nameCity)">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
       </div>
     </div>
 
-    <div class="weather-data">
+    <div class="weather-data hide">
       <h2>
         <i class="fa-solid fa-location-dot"></i>
         <span>{{ weather.countryName }}</span>
@@ -57,6 +58,7 @@ import config from "@/config/config";
 
 export default {
   name: "WeatherBox",
+  emits: ['bgImage'],
   data() {
     return {
       nameCity: "",
@@ -71,37 +73,27 @@ export default {
       },
     };
   },
-  created() {
-    fetch(
-        `${config.apiWeatherUrl}?q=Brasilia&units=metric&appid=${config.apiWeatherKey}&lang=pt_br`
-      )
-        .then((response) => response.json())
-        .then((response) => {
-          this.weather.countryName = response.name;
-          this.weather.countryFlag = response.sys.country;
-          this.weather.temperature = parseInt(response.main.temp);
-          this.weather.description = response.weather[0].description;
-          this.weather.icon = response.weather[0].icon;
-          this.weather.humidity = response.main.humidity;
-          this.weather.wind = response.wind.speed;
-        });
-  },
   methods: {
     search() {
       fetch(
         `${config.apiWeatherUrl}?q=${this.nameCity}&units=metric&appid=${config.apiWeatherKey}&lang=pt_br`
       )
         .then((response) => response.json())
-        .then((response) => {
-          this.weather.countryName = response.name;
-          this.weather.countryFlag = response.sys.country;
-          this.weather.temperature = parseInt(response.main.temp);
-          this.weather.description = response.weather[0].description;
-          this.weather.icon = response.weather[0].icon;
-          this.weather.humidity = response.main.humidity;
-          this.weather.wind = response.wind.speed;
-        });
-    },
+        .then(
+          (response) => {
+            this.weather.countryName = response.name;
+            this.weather.countryFlag = response.sys.country;
+            this.weather.temperature = parseInt(response.main.temp);
+            this.weather.description = response.weather[0].description;
+            this.weather.icon = response.weather[0].icon;
+            this.weather.humidity = response.main.humidity;
+            this.weather.wind = response.wind.speed;
+          }
+        )
+
+        let display = document.querySelector('.weather-data')
+        display.classList.remove('hide')
+    }
   },
 };
 </script>
@@ -140,6 +132,10 @@ export default {
   border-radius: 4px;
   margin-left: 8px;
   cursor: pointer;
+}
+
+.hide {
+  display: none;
 }
 
 .weather-data {
