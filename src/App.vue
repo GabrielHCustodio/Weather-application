@@ -1,5 +1,5 @@
 <template>
-  <div class="center">
+  <div>
     <weather-box @bg-image="bgImage" />
   </div>
 </template>
@@ -16,11 +16,12 @@ export default {
     }
   },
   components: {
-    WeatherBox,
+    WeatherBox
   },
   methods: {
     bgImage(city) {
-      document.body.style.backgroundImage = `url("${config.apiUnsplash + city}")`;
+      console.log(city)
+      document.body.style.backgroundImage = `url("${config.apiUnsplash + city}")`
     },
   },
 };
@@ -42,8 +43,7 @@ body {
   justify-content: center;
   width: 100%;
   height: 100vh;
-  background-color: #0093e9;
-  background-image: linear-gradient(160deg, #0093e9 0%, #80d0c7 100%);
+  background: linear-gradient(160deg, #0093e9 0%, #80d0c7 100%);
   background-position: center;
   background-size: cover;
 }

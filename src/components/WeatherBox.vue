@@ -9,56 +9,31 @@
           v-model="nameCity"
           @keyup.enter="search"
         />
-        <button @click.e.prevent="search" @click="$emit('bgImage', this.nameCity)">
+        <button @click.e.prevent="search">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
       </div>
     </div>
 
-    <div class="weather-data hide">
-      <h2>
-        <i class="fa-solid fa-location-dot"></i>
-        <span>{{ weather.countryName }}</span>
-        <img
-          id="country"
-          :src="`https://countryflagsapi.com/png/${weather.countryFlag}`"
-          alt="Bandeira do país"
-        />
-      </h2>
-
-      <p id="temperature">
-        <span>{{ weather.temperature }}</span
-        >&deg;C
-      </p>
-
-      <div class="description-container">
-        <p id="description">{{ weather.description }}</p>
-        <img
-          :src="`https://openweathermap.org/img/wn/${weather.icon}.png`"
-          alt="Condição do tempo"
-        />
-      </div>
-
-      <div class="container-details">
-        <p id="humidity">
-          <i class="fa-solid fa-droplet"></i>
-          <span>{{ weather.humidity }} %</span>
-        </p>
-        <p>
-          <i class="fa-solid fa-wind"></i>
-          <span>{{ weather.wind }} Km/h</span>
-        </p>
-      </div>
-    </div>
+    <display-data
+      v-if="showData && loading === false && messageError === false"
+      :weather="this.weather"
+    />
+    <loader v-if="loading && messageError === false" />
+    <messageError v-if="messageError" />
   </div>
 </template>
 
 <script>
 import config from "@/config/config";
 
+import DisplayData from "@/components/DisplayData.vue";
+import Loader from "@/components/Loader.vue";
+import MessageError from "@/components/MessageError.vue";
+
 export default {
   name: "WeatherBox",
-  emits: ['bgImage'],
+  emits: ["bgImage"],
   data() {
     return {
       nameCity: "",
@@ -71,29 +46,46 @@ export default {
         humidity: "",
         wind: "",
       },
+      showData: false,
+      loading: false,
+      messageError: false,
     };
+  },
+  components: {
+    DisplayData,
+    Loader,
+    MessageError,
   },
   methods: {
     search() {
+      this.loading = !this.loading;
+      this.messageError = false
+
       fetch(
         `${config.apiWeatherUrl}?q=${this.nameCity}&units=metric&appid=${config.apiWeatherKey}&lang=pt_br`
       )
         .then((response) => response.json())
-        .then(
-          (response) => {
-            this.weather.countryName = response.name;
-            this.weather.countryFlag = response.sys.country;
-            this.weather.temperature = parseInt(response.main.temp);
-            this.weather.description = response.weather[0].description;
-            this.weather.icon = response.weather[0].icon;
-            this.weather.humidity = response.main.humidity;
-            this.weather.wind = response.wind.speed;
-          }
-        )
+        .then((response) => {
+          this.weather.countryName = response.name;
+          this.weather.countryFlag = response.sys.country;
+          this.weather.temperature = parseInt(response.main.temp);
+          this.weather.description = response.weather[0].description;
+          this.weather.icon = response.weather[0].icon;
+          this.weather.humidity = response.main.humidity;
+          this.weather.wind = response.wind.speed;
+        })
+        .catch((error) => {
+          return this.messageError = true;
+        });
 
-        let display = document.querySelector('.weather-data')
-        display.classList.remove('hide')
-    }
+      this.$emit("bgImage", this.nameCity);
+
+      setTimeout(() => {
+        this.loading = !this.loading;
+      }, 1500);
+
+      return (this.showData = true);
+    },
   },
 };
 </script>
@@ -132,63 +124,5 @@ export default {
   border-radius: 4px;
   margin-left: 8px;
   cursor: pointer;
-}
-
-.hide {
-  display: none;
-}
-
-.weather-data {
-  border-top: 1px solid #fff;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  text-align: center;
-}
-
-.weather-data h2 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 0.6rem;
-}
-
-.weather-data h2 i {
-  font-size: 1rem;
-}
-
-.weather-data span {
-  margin: 0.6rem;
-}
-
-#country {
-  height: 20px;
-}
-
-#temperature {
-  font-size: 4rem;
-}
-
-.description-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0.6rem 0;
-}
-
-#description {
-  text-transform: capitalize;
-  font-weight: bold;
-}
-
-.container-details {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.container-details #humidity {
-  border-right: 1px solid #fff;
-  margin: 0.6rem;
-  padding: 0.6rem;
 }
 </style>
