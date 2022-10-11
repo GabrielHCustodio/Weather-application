@@ -28,7 +28,7 @@
 import config from "@/config/config";
 
 import DisplayData from "@/components/DisplayData.vue";
-import LoaderRequest from "@/components/Loader.vue";
+import LoaderRequest from "@/components/LoaderRequest.vue";
 import MessageError from "@/components/MessageError.vue";
 
 export default {
